@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Komisji - E-Głosowanie</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/commission.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">🗳️ E-Głosowanie - Komisja</div>
+        <div class="nav-links" id="navLinks">
+            <!-- Dynamic navigation populated by common.js -->
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="hero">
+            <h1>Panel Komisji</h1>
+            <p>Zarządzanie głosowaniami i kluczami kryptograficznymi</p>
+        </div>
+
+        <!-- TABS NAVIGATION -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchCommissionTab('fragments')">
+                    🔑 Moje Fragmenty Kluczy
+                </button>
+                <button class="tab-btn" onclick="switchCommissionTab('create')">
+                    📋 Tworzenie Nowego Głosowania
+                </button>
+                <button class="tab-btn" onclick="switchCommissionTab('elections')">
+                    📚 Głosowania
+                </button>
+            </div>
+
+            <!-- TAB: MY KEY FRAGMENTS -->
+            <div id="tab-fragments" class="tab-content active">
+                <section class="commission-section">
+                    <h2>Moje Fragmenty Kluczy</h2>
+                    <div class="info-box">
+                        <p>🔑 Fragmenty kluczy prywatnych dla głosowań, w których uczestniczysz</p>
+                        <p>📤 Możesz udostępnić swój fragment innym członkom komisji do deszyfrowania wyników</p>
+                    </div>
+                    <div id="myFragmentsList">
+                        <p class="no-data">Ładowanie fragmentów...</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- TAB: CREATE ELECTION -->
+            <div id="tab-create" class="tab-content">
+                <section class="commission-section">
+                    <h2>Tworzenie Nowego Głosowania</h2>
+                    <div class="info-box">
+                        <p>📋 System automatycznie wygeneruje klucze Pailliera i podzieli je na 5 fragmentów</p>
+                        <p>🔐 Każdy członek komisji otrzyma 1 fragment klucza prywatnego</p>
+                        <p>✅ Do odszyfrowania wyników wymagane będą minimum 3 fragmenty (próg 3/5)</p>
+                    </div>
+
+                    <form id="createElectionForm">
+                        <div class="form-group">
+                            <label for="electionName">Nazwa Głosowania *</label>
+                            <input type="text" id="electionName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="electionDescription">Opis</label>
+                            <textarea id="electionDescription"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="startDate">Data Rozpoczęcia *</label>
+                            <input type="datetime-local" id="startDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">Data Zakończenia *</label>
+                            <input type="datetime-local" id="endDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Kandydaci (minimum 2) *</label>
+                            <div id="candidatesList">
+                                <div class="candidate-input">
+                                    <input type="text" placeholder="Nazwa kandydata" class="candidate-name" required>
+                                    <input type="text" placeholder="Opis (opcjonalnie)" class="candidate-desc">
+                                </div>
+                            </div>
+                            <button type="button" class="btn-add" onclick="addCandidate()">+ Dodaj Kandydata</button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">🗳️ Utwórz Głosowanie</button>
+                    </form>
+                </section>
+            </div>
+
+            <!-- TAB: ELECTIONS (Finalization & Decryption) -->
+            <div id="tab-elections" class="tab-content">
+                <section class="commission-section">
+                    <h2>Zakończenie i Odszyfrowanie Głosowań</h2>
+                    <div class="info-box">
+                        <p>🔒 Wybierz zakończone głosowanie, aby odszyfrować wyniki</p>
+                        <p>📊 Dostępne są dwa tryby zakończenia głosowania:</p>
+                        <ul style="margin: 10px 0 0 20px; color: var(--text-color-light);">
+                            <li><strong>Tryb automatyczny:</strong> 3/5 członków komisji głosuje za zakończeniem → automatyczne deszyfrowanie</li>
+                            <li><strong>Tryb ręczny:</strong> Wprowadź 3 fragmenty klucza → natychmiastowe zakończenie i deszyfrowanie</li>
+                        </ul>
+                    </div>
+                    <div id="electionsFinalizationList">
+                        <p class="no-data">Ładowanie zakończonych głosowań...</p>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/common.js"></script>
+    <script type="module" src="/js/commission.js"></script>
+</body>
+</html>

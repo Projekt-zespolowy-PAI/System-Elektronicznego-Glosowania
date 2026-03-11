@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symulacja Systemu Głosowania - E-Głosowanie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #ff4040;
+            --primary-color-hover: #e53935;
+            --primary-color-light: #ff8080;
+            --bg-color: #1c1c1c;
+            --container-bg-color: #2a2a2a;
+            --secondary-bg-color: #303030;
+            --text-color: #e0e0e0;
+            --text-color-light: #aaa;
+            --border-color: #555555;
+            --border-radius-sm: 8px;
+            --border-radius-md: 15px;
+            --border-radius-lg: 25px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --success-color: #66bb6a;
+            --warning-color: #ffc107;
+            --danger-color: #e53e3e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: var(--container-bg-color);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--box-shadow);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: var(--text-color-light);
+            font-size: 1.1rem;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: var(--border-radius-sm);
+            background: var(--secondary-bg-color);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .simulation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel {
+            background: var(--container-bg-color);
+            border-radius: var(--border-radius-md);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .panel h2 {
+            color: var(--primary-color-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 64, 64, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            outline: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            background: var(--primary-color-hover);
+        }
+
+        .btn-secondary {
+            background: var(--success-color);
+        }
+
+        .btn-secondary:hover {
+            background: #4caf50;
+        }
+
+        .results {
+            background: var(--secondary-bg-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .results h3 {
+            color: var(--primary-color-light);
+            margin-bottom: 1rem;
+        }
+
+        .result-item {
+            padding: 0.75rem;
+            background: var(--bg-color);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 0.75rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .result-item strong {
+            color: var(--primary-color);
+        }
+
+        .success {
+            color: var(--success-color);
+        }
+
+        .error {
+            color: var(--danger-color);
+        }
+
+        .warning {
+            color: var(--warning-color);
+        }
+
+        .info-box {
+            background: var(--secondary-bg-color);
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .info-box p {
+            color: var(--text-color-light);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-container {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .log-entry {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.9rem;
+        }
+
+        .log-info {
+            background: rgba(100, 150, 255, 0.1);
+            border-left: 3px solid #6496ff;
+        }
+
+        .log-success {
+            background: rgba(102, 187, 106, 0.1);
+            border-left: 3px solid var(--success-color);
+        }
+
+        .log-error {
+            background: rgba(229, 62, 62, 0.1);
+            border-left: 3px solid var(--danger-color);
+        }
+
+        .log-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 3px solid var(--warning-color);
+        }
+
+        @media (max-width: 968px) {
+            .simulation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        *::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: #555555;
+            border-radius: 6px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: #666666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Symulacja Systemu Głosowania</h1>
+            <p>Testowanie szyfrowania Pailliera z różnymi wartościami BASE dla kompresji CRT</p>
+            <a href="/index.html" class="nav-link">← Powrót do Głównej</a>
+        </div>
+
+        <div class="simulation-grid">
+            <!-- Panel Konfiguracji -->
+            <div class="panel">
+                <h2>⚙️ Konfiguracja Symulacji</h2>
+                
+                <div class="info-box">
+                    <p><strong>BASE</strong> - podstawa dla kodowania pozycyjnego CRT</p>
+                    <p>Im większa wartość BASE, tym więcej głosów można zakodować</p>
+                    <p><strong>Uwaga:</strong> Zbyt duża wartość może powodować problemy z deszyfrowaniem</p>
+                </div>
+
+                <form id="configForm">
+                    <div class="form-group">
+                        <label for="baseValue">Wartość BASE:</label>
+                        <select id="baseValue">
+                            <option value="10000">10,000</option>
+                            <option value="100000">100,000</option>
+                            <option value="1000000">1,000,000</option>
+                            <option value="10000000">10,000,000</option>
+                            <option value="100000000">100,000,000</option>
+                            <option value="1000000000" selected>1,000,000,000</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numCandidates">Liczba Kandydatów:</label>
+                        <input type="number" id="numCandidates" min="2" max="10" value="4">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numVotes">Liczba Głosów:</label>
+                        <input type="number" id="numVotes" min="1" max="1000" value="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="keySize">Rozmiar Klucza (bity):</label>
+                        <select id="keySize">
+                            <option value="256">256</option>
+                            <option value="512" selected>512</option>
+                            <option value="1024">1024</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn" onclick="runSimulation()">
+                        🚀 Uruchom Symulację
+                    </button>
+
+                    <button type="button" class="btn btn-secondary" onclick="runBenchmark()">
+                        📊 Test Porównawczy (wszystkie BASE)
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panel Wyników -->
+            <div class="panel">
+                <h2>📊 Wyniki Symulacji</h2>
+                
+                <div id="resultsContainer">
+                    <p style="text-align: center; color: var(--text-color-light); padding: 2rem;">
+                        Skonfiguruj parametry i uruchom symulację
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Konsoli -->
+        <div class="panel">
+            <h2>📝 Log Konsoli</h2>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-info">System gotowy do symulacji...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Paillier z utils
+        import { PaillierKeyGenerator, PaillierCrypto } from '/utils/paillier.js';
+
+        // Funkcje logowania
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+
+        // Kodowanie głosów z użyciem CRT
+        function encodeVoteVector(voteVector, BASE) {
+            let encoded = 0n;
+            for (let i = 0; i < voteVector.length; i++) {
+                encoded += BigInt(voteVector[i]) * (BASE ** BigInt(i));
+            }
+            return encoded;
+        }
+
+        // Dekodowanie sumy głosów
+        function decodeVoteSum(aggregatedSum, numCandidates, BASE) {
+            const results = [];
+            let remaining = BigInt(aggregatedSum);
+            const baseBigInt = BigInt(BASE);
+            
+            for (let i = 0; i < numCandidates; i++) {
+                const votes = remaining % baseBigInt;
+                results.push(Number(votes));
+                remaining = remaining / baseBigInt; // Dzielenie całkowite BigInt
+            }
+            
+            return results;
+        }
+
+        // Główna funkcja symulacji
+        window.runSimulation = async function() {
+            clearLog();
+            const startTime = Date.now();
+            
+            try {
+                // Pobierz parametry
+                const BASE = BigInt(document.getElementById('baseValue').value);
+                const numCandidates = parseInt(document.getElementById('numCandidates').value);
+                const numVotes = parseInt(document.getElementById('numVotes').value);
+                const keySize = parseInt(document.getElementById('keySize').value);
+
+                log(`🚀 Rozpoczęcie symulacji`, 'info');
+                log(`BASE = ${BASE.toString()}`, 'info');
+                log(`Kandydaci: ${numCandidates}, Głosy: ${numVotes}, Klucz: ${keySize} bitów`, 'info');
+
+                // 1. Generowanie kluczy Pailliera
+                log(`🔑 Generowanie kluczy Pailliera (${keySize} bitów)...`, 'info');
+                const keyGen = new PaillierKeyGenerator(keySize);
+                const { publicKey, privateKey } = keyGen.generateKeypair();
+                log(`✅ Klucze wygenerowane`, 'success');
+
+                // 2. Tworzenie crypto instance
+                const crypto = new PaillierCrypto(
+                    publicKey.n,
+                    publicKey.g,
+                    privateKey.lambda,
+                    privateKey.mu
+                );
+
+                // 3. Tryb TURBO - matematyczna symulacja zamiast pętli
+                log(`🚀 Uruchamianie w trybie TURBO (matematyczna symulacja)...`, 'info');
+
+                // Funkcja pomocnicza do potęgowania modularnego
+                const bigIntModPow = (base, exp, mod) => {
+                    let res = 1n;
+                    base = base % mod;
+                    while (exp > 0n) {
+                        if (exp % 2n === 1n) res = (res * base) % mod;
+                        exp = exp / 2n;
+                        base = (base * base) % mod;
+                    }
+                    return res;
+                };
+
+                // Tworzymy jeden przykładowy głos (np. na kandydata nr 1)
+                const sampleVoteVector = new Array(numCandidates).fill(0);
+                sampleVoteVector[1] = 1; // Głos na drugiego kandydata (indeks 1)
+                const encodedSingleVote = encodeVoteVector(sampleVoteVector, BASE);
+                const encryptedSingleVote = crypto.encrypt(encodedSingleVote);
+
+                log(`🗳️ Utworzono pojedynczy głos na Kandydata #1`, 'info');
+
+                // Symulujemy agregację wszystkich głosów w jednym kroku
+                // Wzór: E(m)^k mod n^2 = E(m * k)
+                const n2 = publicKey.n * publicKey.n;
+                const k = BigInt(numVotes); // Liczba głosów
+
+                log(`⚡ Błyskawiczna agregacja ${numVotes} głosów...`, 'info');
+                const aggregated = bigIntModPow(encryptedSingleVote, k, n2);
+                log(`✅ Agregacja zakończona w jednym kroku!`, 'success');
+
+                // Oczekiwane wyniki - wszystkie głosy na kandydata nr 1
+                const voteCounts = new Array(numCandidates).fill(0);
+                voteCounts[1] = numVotes;
+                log(`📊 Oczekiwane wyniki: [${voteCounts.join(', ')}]`, 'info');
+
+                // 4. Deszyfrowanie
+                log(`🔓 Deszyfrowanie wyników...`, 'info');
+                const decryptedSum = crypto.decrypt(aggregated);
+                log(`✅ Odszyfrowano sumę: ${decryptedSum.toString().substring(0, 50)}...`, 'success');
+
+                // 5. Dekodowanie
+                log(`🔍 Dekodowanie wyników...`, 'info');
+                const results = decodeVoteSum(decryptedSum, numCandidates, BASE);
+                log(`✅ Wyniki zdekodowane`, 'success');
+
+                // 6. Weryfikacja dla trybu TURBO
+                log(`✔️ Weryfikacja poprawności...`, 'info');
+                let isCorrect = true;
+                let totalVotes = 0;
+
+                for (let i = 0; i < numCandidates; i++) {
+                    totalVotes += results[i];
+                    if (results[i] !== voteCounts[i]) {
+                        isCorrect = false;
+                        log(`❌ Kandydat ${i}: oczekiwano ${voteCounts[i]}, otrzymano ${results[i]}`, 'error');
+                    } else if (results[i] > 0) {
+                        log(`✅ Kandydat ${i}: ${results[i]} głosów (poprawnie!)`, 'success');
+                    }
+                }
+
+                const endTime = Date.now();
+                const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+                // Wyświetl wyniki
+                if (isCorrect && totalVotes === numVotes) {
+                    log(`✅ SYMULACJA ZAKOŃCZONA SUKCESEM!`, 'success');
+                    log(`⏱️ Czas wykonania: ${duration}s`, 'success');
+                    displayResults({
+                        success: true,
+                        BASE: BASE.toString(),
+                        numCandidates,
+                        numVotes,
+                        keySize,
+                        duration,
+                        expected: voteCounts,
+                        results: results,
+                        aggregatedSize: aggregated.toString().length
+                    });
+                } else {
+                    log(`❌ SYMULACJA NIEUDANA - wyniki nie zgadzają się!`, 'error');
+                    displayResults({
+                        success: false,
+                        BASE: BASE.toString(),
+                        numCandidates,
+                        numVotes,
+                        keySize,
+                        duration,
+                        expected: voteCounts,
+                        results: results,
+                        totalVotes,
+                        aggregatedSize: aggregated.toString().length
+                    });
+                }
+
+            } catch (error) {
+                log(`❌ BŁĄD: ${error.message}`, 'error');
+                displayResults({
+                    success: false,
+                    error: error.message
+                });
+            }
+        };
+
+        // Test porównawczy
+        window.runBenchmark = async function() {
+            clearLog();
+            log(`📊 Rozpoczęcie testu porównawczego...`, 'info');
+            
+            const bases = [10000n, 100000n, 1000000n, 10000000n, 100000000n, 1000000000n];
+            const numCandidates = parseInt(document.getElementById('numCandidates').value);
+            const numVotes = parseInt(document.getElementById('numVotes').value);
+            const keySize = parseInt(document.getElementById('keySize').value);
+            
+            const benchmarkResults = [];
+
+            for (const BASE of bases) {
+                try {
+                    log(`\n🧪 Testowanie BASE = ${BASE.toString()}...`, 'info');
+                    
+                    const startTime = Date.now();
+                    
+                    // Generowanie kluczy
+                    const keyGen = new PaillierKeyGenerator(keySize);
+                    const { publicKey, privateKey } = keyGen.generateKeypair();
+                    
+                    const crypto = new PaillierCrypto(
+                        publicKey.n,
+                        publicKey.g,
+                        privateKey.lambda,
+                        privateKey.mu
+                    );
+
+                    // Funkcja pomocnicza do potęgowania modularnego
+                    const bigIntModPow = (base, exp, mod) => {
+                        let res = 1n;
+                        base = base % mod;
+                        while (exp > 0n) {
+                            if (exp % 2n === 1n) res = (res * base) % mod;
+                            exp = exp / 2n;
+                            base = (base * base) % mod;
+                        }
+                        return res;
+                    };
+
+                    // Tryb TURBO dla benchmarku
+                    const sampleVoteVector = new Array(numCandidates).fill(0);
+                    sampleVoteVector[1] = 1;
+                    const encodedSingleVote = encodeVoteVector(sampleVoteVector, BASE);
+                    const encryptedSingleVote = crypto.encrypt(encodedSingleVote);
+
+                    // Błyskawiczna agregacja
+                    const n2 = publicKey.n * publicKey.n;
+                    const k = BigInt(numVotes);
+                    const aggregated = bigIntModPow(encryptedSingleVote, k, n2);
+
+                    // Oczekiwane wyniki
+                    const voteCounts = new Array(numCandidates).fill(0);
+                    voteCounts[1] = numVotes;
+
+                    // Deszyfrowanie
+                    const decryptedSum = crypto.decrypt(aggregated);
+                    const results = decodeVoteSum(decryptedSum, numCandidates, BASE);
+
+                    // Weryfikacja
+                    let isCorrect = true;
+                    let totalVotes = 0;
+
+                    for (let i = 0; i < numCandidates; i++) {
+                        totalVotes += results[i];
+                        if (results[i] !== voteCounts[i]) {
+                            isCorrect = false;
+                        }
+                    }
+
+                    const endTime = Date.now();
+                    const duration = ((endTime - startTime) / 1000).toFixed(2);
+
+                    const result = {
+                        BASE: BASE.toString(),
+                        success: isCorrect && totalVotes === numVotes,
+                        duration: duration,
+                        aggregatedSize: aggregated.toString().length
+                    };
+
+                    benchmarkResults.push(result);
+
+                    if (result.success) {
+                        log(`✅ BASE ${BASE.toString()}: SUKCES (${duration}s)`, 'success');
+                    } else {
+                        log(`❌ BASE ${BASE.toString()}: NIEPOWODZENIE (${duration}s)`, 'error');
+                    }
+
+                } catch (error) {
+                    log(`❌ BASE ${BASE.toString()}: BŁĄD - ${error.message}`, 'error');
+                    benchmarkResults.push({
+                        BASE: BASE.toString(),
+                        success: false,
+                        error: error.message
+                    });
+                }
+            }
+
+            log(`\n📊 Test porównawczy zakończony`, 'success');
+            displayBenchmarkResults(benchmarkResults);
+        };
+
+        // Wyświetlanie wyników pojedynczej symulacji
+        function displayResults(data) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (data.error) {
+                container.innerHTML = `
+                    <div class="results">
+                        <h3 class="error">❌ Błąd Symulacji</h3>
+                        <div class="result-item error">
+                            ${data.error}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="results">
+                    <h3 class="${data.success ? 'success' : 'error'}">
+                        ${data.success ? '✅ Symulacja Udana' : '❌ Symulacja Nieudana'}
+                    </h3>
+                    
+                    <div class="result-item">
+                        <strong>BASE:</strong> ${data.BASE}
+                    </div>
+                    
+                    <div class="result-item">
+                        <strong>Kandydaci:</strong> ${data.numCandidates} | 
+                        <strong>Głosy:</strong> ${data.numVotes} | 
+                        <strong>Klucz:</strong> ${data.keySize} bitów
+                    </div>
+                    
+                    <div class="result-item">
+                        <strong>Czas wykonania:</strong> ${data.duration}s
+                    </div>
+                    
+                    <div class="result-item">
+                        <strong>Rozmiar zagregowanego:</strong> ${data.aggregatedSize} cyfr
+                    </div>
+                    
+                    <div class="result-item">
+                        <strong>Oczekiwane wyniki:</strong><br>
+                        [${data.expected.join(', ')}]
+                    </div>
+                    
+                    <div class="result-item ${data.success ? 'success' : 'error'}">
+                        <strong>Otrzymane wyniki:</strong><br>
+                        [${data.results.join(', ')}]
+                    </div>
+            `;
+
+            if (!data.success) {
+                html += `
+                    <div class="result-item error">
+                        <strong>Suma głosów:</strong> ${data.totalVotes} (oczekiwano: ${data.numVotes})
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // Wyświetlanie wyników benchmarku
+        function displayBenchmarkResults(results) {
+            const container = document.getElementById('resultsContainer');
+            
+            let html = `
+                <div class="results">
+                    <h3>📊 Wyniki Testu Porównawczego</h3>
+            `;
+
+            results.forEach(result => {
+                const statusClass = result.success ? 'success' : 'error';
+                const statusIcon = result.success ? '✅' : '❌';
+                
+                html += `
+                    <div class="result-item">
+                        <strong class="${statusClass}">${statusIcon} BASE ${result.BASE}:</strong><br>
+                        ${result.success ? 
+                            `Czas: ${result.duration}s | Rozmiar: ${result.aggregatedSize} cyfr` :
+                            `Błąd: ${result.error || 'Niepoprawne wyniki'}`
+                        }
+                    </div>
+                `;
+            });
+
+            // Podsumowanie
+            const successCount = results.filter(r => r.success).length;
+            html += `
+                    <div class="result-item ${successCount === results.length ? 'success' : 'warning'}">
+                        <strong>Podsumowanie:</strong> ${successCount}/${results.length} testów zakończonych sukcesem
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Automatyczne logowanie na start
+        log('System symulacji gotowy', 'success');
+        log('Wybierz parametry i uruchom test', 'info');
+    </script>
+</body>
+</html>

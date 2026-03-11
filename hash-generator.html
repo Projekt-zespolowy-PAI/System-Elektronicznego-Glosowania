@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Hasha - E-Głosowanie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #ff4040;
+            --primary-color-hover: #e53935;
+            --primary-color-light: #ff8080;
+            --bg-color: #1c1c1c;
+            --container-bg-color: #2a2a2a;
+            --secondary-bg-color: #303030;
+            --text-color: #e0e0e0;
+            --text-color-light: #aaa;
+            --border-color: #555555;
+            --border-radius-sm: 8px;
+            --border-radius-md: 15px;
+            --border-radius-lg: 25px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --success-color: #66bb6a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Custom Scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #555555 #2a2a2a;
+        }
+
+        *::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: #555555;
+            border-radius: 6px;
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: #666666;
+        }
+
+        .navbar {
+            background: rgba(42, 42, 42, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-link {
+            color: var(--text-color-light);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 8px 16px;
+            border-radius: var(--border-radius-sm);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--secondary-bg-color);
+            color: var(--primary-color);
+        }
+
+        .content-wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .hash-container {
+            background: var(--container-bg-color);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--box-shadow);
+            max-width: 650px;
+            width: 100%;
+            padding: 3rem;
+        }
+
+        .hash-container h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-color-light);
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+        }
+
+        .tabs-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: var(--text-color-light);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            color: var(--primary-color-light);
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-box {
+            background: var(--secondary-bg-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .info-box p {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .info-box ol {
+            margin: 0.5rem 0 0 1.5rem;
+            line-height: 1.8;
+            color: var(--text-color-light);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 64, 64, 0.2);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            outline: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--primary-shadow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            background: var(--primary-color-hover);
+            box-shadow: var(--box-shadow-hover);
+        }
+
+        .progress-container {
+            margin: 1.5rem 0;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar-outer {
+            width: 100%;
+            height: 10px;
+            background: var(--bg-color);
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-color-light));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            color: var(--text-color-light);
+            font-size: 0.95rem;
+        }
+
+        .result-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--secondary-bg-color);
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .hash-output {
+            word-break: break-all;
+            background: var(--bg-color);
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--primary-color-light);
+            border: 2px solid var(--primary-color);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .btn-copy {
+            width: 100%;
+            padding: 12px;
+            background: var(--success-color);
+            color: white;
+            border: none;
+            outline: none;
+            border-radius: var(--border-radius-lg);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-copy:hover {
+            background: var(--success-color-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-hover);
+        }
+
+        .btn-copy.copied {
+            background: #2196f3;
+        }
+
+        @media (max-width: 768px) {
+            .hash-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .hash-container h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">🦅 E-Głosowanie 🇵🇱</h1>
+            <a href="/index.html" class="nav-link">← Powrót do Głównej</a>
+        </div>
+    </nav>
+
+    <div class="content-wrapper">
+        <div class="hash-container">
+            <h1>Generator Hasha</h1>
+            <p class="subtitle">Narzędzie do generowania unikalnych identyfikatorów</p>
+
+            <div class="tabs-container">
+                <button class="tab-button active" onclick="switchTab('user')">
+                    🔐 Hash Użytkownika
+                </button>
+                <button class="tab-button" onclick="switchTab('password')">
+                    🔑 Hash Hasła
+                </button>
+            </div>
+
+            <!-- Tab 1: User Hash -->
+            <div class="tab-content active" id="user-tab">
+                <div class="info-box">
+                    <p>📌 Instrukcja:</p>
+                    <ol>
+                        <li>Wprowadź swoje dane osobowe</li>
+                        <li>Wpisz liczbę iteracji (z urzędu)</li>
+                        <li>Skopiuj wygenerowany hash - to Twój login</li>
+                    </ol>
+                </div>
+
+                <form id="userHashForm">
+                    <div class="form-group">
+                        <label for="firstName">Imię</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Nazwisko</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pesel">PESEL</label>
+                        <input type="text" id="pesel" pattern="[0-9]{11}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="iterations">Liczba iteracji</label>
+                        <input type="number" id="iterations" min="1" value="1000" required>
+                    </div>
+                    <button type="submit" class="btn-primary">🔐 Generuj Hash Użytkownika</button>
+                </form>
+
+                <div class="progress-container" id="userProgress">
+                    <div class="progress-bar-outer">
+                        <div class="progress-bar-inner" id="userProgressBar"></div>
+                    </div>
+                    <div class="progress-text" id="userProgressText">Generowanie...</div>
+                </div>
+
+                <div class="result-box" id="userResult">
+                    <div class="result-label">✅ Twój Hash Użytkownika (Login):</div>
+                    <div class="hash-output" id="userHashOutput"></div>
+                    <button class="btn-copy" onclick="copyHash('userHashOutput', this)">
+                        📋 Kopiuj Hash
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Password Hash -->
+            <div class="tab-content" id="password-tab">
+                <div class="info-box">
+                    <p>📌 Instrukcja:</p>
+                    <ol>
+                        <li>Wprowadź swoje hasło</li>
+                        <li>Wygeneruj hash hasła (SHA-256)</li>
+                        <li>Ten hash jest przechowywany w bazie</li>
+                    </ol>
+                </div>
+
+                <form id="passwordHashForm">
+                    <div class="form-group">
+                        <label for="password">Hasło</label>
+                        <input type="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">🔑 Generuj Hash Hasła</button>
+                </form>
+
+                <div class="result-box" id="passwordResult">
+                    <div class="result-label">✅ Hash Hasła (SHA-256):</div>
+                    <div class="hash-output" id="passwordHashOutput"></div>
+                    <button class="btn-copy" onclick="copyHash('passwordHashOutput', this)">
+                        📋 Kopiuj Hash
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            const userTab = document.getElementById('user-tab');
+            const passwordTab = document.getElementById('password-tab');
+            const buttons = document.querySelectorAll('.tab-button');
+
+            if (tab === 'user') {
+                userTab.classList.add('active');
+                passwordTab.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                userTab.classList.remove('active');
+                passwordTab.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // User Hash Form
+        document.getElementById('userHashForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const pesel = document.getElementById('pesel').value.trim();
+            const iterations = parseInt(document.getElementById('iterations').value);
+
+            const progress = document.getElementById('userProgress');
+            const progressBar = document.getElementById('userProgressBar');
+            const progressText = document.getElementById('userProgressText');
+            const resultBox = document.getElementById('userResult');
+            const output = document.getElementById('userHashOutput');
+
+            // Show progress
+            progress.classList.add('show');
+            resultBox.classList.remove('show');
+
+            // Create input string
+            const input = `${firstName}|${lastName}|${pesel}`;
+            let hash = input;
+
+            // Iterative hashing
+            for (let i = 0; i < iterations; i++) {
+                hash = await sha256(hash);
+                
+                // Update progress
+                const percent = ((i + 1) / iterations * 100).toFixed(0);
+                progressBar.style.width = percent + '%';
+                progressText.textContent = `Iteracja ${i + 1} / ${iterations} (${percent}%)`;
+                
+                // Allow UI to update
+                if (i % 100 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+
+            // Hide progress, show result
+            progress.classList.remove('show');
+            output.textContent = hash;
+            resultBox.classList.add('show');
+        });
+
+        // Password Hash Form
+        document.getElementById('passwordHashForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = document.getElementById('password').value;
+            const resultBox = document.getElementById('passwordResult');
+            const output = document.getElementById('passwordHashOutput');
+
+            const hash = await sha256(password);
+            
+            output.textContent = hash;
+            resultBox.classList.add('show');
+        });
+
+        // SHA-256 function
+        async function sha256(message) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(message);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Copy to clipboard
+        async function copyHash(elementId, button) {
+            const text = document.getElementById(elementId).textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                button.textContent = '✅ Skopiowano!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = '📋 Kopiuj Hash';
+                    button.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                alert('Błąd kopiowania. Skopiuj ręcznie.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+/* Home Page Specific Styles */
+
+/* === Hero Section === */
+.hero {
+    text-align: center;
+    padding: 40px 20px;
+    margin-bottom: 40px;
+    background: var(--container-bg-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--box-shadow);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    background: var(--primary-color);
+    background-clip: text;
+    border: none;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: var(--text-color-light);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* === Elections Section === */
+.elections-section {
+    margin-bottom: 50px;
+}
+
+.section-header {
+    margin-bottom: 25px;
+}
+
+.section-header h2 {
+    text-align: left;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.elections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.no-elections {
+    text-align: center;
+    color: var(--text-color-light);
+    padding: 40px 20px;
+    font-style: italic;
+    grid-column: 1 / -1;
+}
+
+/* === Election Cards === */
+.election-card {
+    background: var(--secondary-bg-color);
+    border-radius: var(--border-radius-md);
+    padding: 25px;
+    border-left: 5px solid var(--primary-color);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.election-card:hover {
+    transform: translateY(-5px);
+    background: var(--tertiary-bg-color);
+    box-shadow: var(--box-shadow-hover);
+}
+
+.election-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.election-header h3 {
+    color: var(--primary-color-light);
+    margin: 0;
+    font-size: 1.4rem;
+    flex: 1;
+}
+
+.election-description {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.election-meta {
+    color: var(--text-color-light);
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.election-meta p {
+    margin: 5px 0;
+}
+
+.election-card .btn-primary,
+.election-card .btn-secondary {
+    width: 100%;
+    margin-top: auto;
+    text-align: center;
+}
+
+.login-required {
+    color: var(--warning-color);
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: var(--border-radius-sm);
+    margin-top: auto;
+}
+
+.results-pending {
+    color: var(--text-color-light);
+    text-align: center;
+    padding: 12px;
+    background: rgba(85, 85, 85, 0.2);
+    border-radius: var(--border-radius-sm);
+    margin-top: auto;
+}
+
+/* === Voting Form (in Modal) === */
+.voting-form {
+    margin-top: 20px;
+}
+
+.candidates-list {
+    margin: 20px 0;
+}
+
+.candidate-option {
+    background: var(--secondary-bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 15px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.candidate-option:hover {
+    border-color: var(--primary-color);
+    background: var(--tertiary-bg-color);
+    transform: scale(1.02);
+}
+
+.candidate-option.selected {
+    background: var(--tertiary-bg-color);
+    border-color: var(--primary-color);
+    border-width: 3px;
+    padding: 14px;
+}
+
+.candidate-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary-color);
+}
+
+.candidate-info {
+    flex: 1;
+}
+
+.candidate-name {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.candidate-description {
+    color: var(--text-color-light);
+    font-size: 0.95rem;
+}
+
+/* === Results Display === */
+.results-container {
+    margin-top: 20px;
+}
+
+.result-item {
+    background: var(--secondary-bg-color);
+    border-radius: var(--border-radius-sm);
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 5px solid var(--primary-color);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.result-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.result-votes {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.result-bar-container {
+    background: var(--bg-color);
+    border-radius: var(--border-radius-lg);
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.result-bar {
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-color-light));
+    height: 100%;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    min-width: 50px;
+}
+
+.result-percentage {
+    color: var(--primary-text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.result-total {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--secondary-bg-color);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+/* === Winner Highlight === */
+.result-item.winner {
+    border-left-color: var(--success-color);
+    background: rgba(102, 187, 106, 0.1);
+}
+
+.result-item.winner .result-bar {
+    background: linear-gradient(90deg, var(--success-color), var(--success-color-hover));
+}
+
+.result-item.winner .result-votes {
+    color: var(--success-color);
+}
+
+/* === Login Modal Specific Styles === */
+#loginModal .modal-content {
+    max-width: 500px;
+}
+
+#loginModal .form-group input {
+    width: 100%;
+}
+
+#loginModal .error {
+    display: none;
+    color: var(--danger-color);
+    background: rgba(229, 62, 62, 0.1);
+    padding: 8px 12px;
+    border-radius: var(--border-radius-sm);
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+
+#loginModal .btn-primary {
+    width: 100%;
+    margin-top: 10px;
+    border: none !important;
+    outline: none !important;
+    border-radius: var(--border-radius-lg) !important;
+    padding: 15px 25px !important;
+    font-size: 1.1rem !important;
+}
+
+#loginModal .login-footer {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+#loginModal .login-footer p {
+    color: var(--text-color-light);
+}
+
+#loginModal .login-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+#loginModal .login-footer a:hover {
+    color: var(--primary-color-light);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .elections-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .election-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .result-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}

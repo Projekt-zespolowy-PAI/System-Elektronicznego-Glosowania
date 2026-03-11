@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System E-Głosowania</title>
+    <link rel="stylesheet" href="/css/common.css">
+    <link rel="stylesheet" href="/css/home.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="logo">🦅 E-Głosowanie 🇵🇱</h1>
+            <div class="nav-links">
+                <!-- Dynamically updated by common.js -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero">
+            <h1>System Elektronicznego Głosowania</h1>
+            <p>Bezpieczne i anonimowe głosowanie z wykorzystaniem kryptografii homomorficznej</p>
+        </section>
+
+        <!-- TABS NAVIGATION -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="switchTab('active')">
+                    🗳️ Aktywne Głosowania
+                </button>
+                <button class="tab-btn" onclick="switchTab('closed')">
+                    📊 Zakończone Głosowania
+                </button>
+            </div>
+
+            <!-- TAB: ACTIVE ELECTIONS -->
+            <div id="tab-active" class="tab-content active">
+                <div id="activeElections" class="elections-grid">
+                    <div class="loading">Ładowanie...</div>
+                </div>
+            </div>
+
+            <!-- TAB: CLOSED ELECTIONS -->
+            <div id="tab-closed" class="tab-content">
+                <div id="closedElections" class="elections-grid">
+                    <div class="loading">Ładowanie...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Logowanie do Systemu</h2>
+                <button class="modal-close" onclick="closeLoginModal()">✖</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="userHash">Hash Użytkownika</label>
+                        <input 
+                            type="text" 
+                            id="userHash" 
+                            placeholder="64-znakowy hash hex" 
+                            pattern="[a-fA-F0-9]{64}"
+                            style="font-family: 'Courier New', monospace;"
+                            required
+                        >
+                        <div id="userHashError" class="error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Hasło</label>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            placeholder="Wprowadź hasło"
+                            required
+                        >
+                        <div id="passwordError" class="error"></div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        🔐 Zaloguj się
+                    </button>
+                </form>
+
+                <div class="login-footer">
+                    <p>
+                        Nie masz hasha? 
+                        <a href="/hash-generator.html">Wygeneruj hash</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script type="module" src="/js/home.js"></script>
+    <script>
+        // Login modal functions
+        window.showLoginModal = function() {
+            document.getElementById('loginModal').style.display = 'flex';
+        };
+
+        window.closeLoginModal = function() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+        };
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => el.style.display = 'none');
+            
+            const userHash = document.getElementById('userHash').value.trim();
+            const password = document.getElementById('password').value;
+            
+            // Validate
+            let isValid = true;
+            
+            if (!/^[a-f0-9]{64}$/i.test(userHash)) {
+                showError('userHashError', 'Hash musi składać się z 64 znaków hex');
+                isValid = false;
+            }
+            
+            if (!password) {
+                showError('passwordError', 'Hasło jest wymagane');
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Hash the password
+            try {
+                const passwordHash = await sha256(password);
+                
+                // Login via API
+                const response = await apiCall('auth/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        userHash: userHash,
+                        passwordHash: passwordHash
+                    })
+                });
+                
+                // Save session
+                setSession(response.sessionToken, {
+                    user_hash: response.userHash,
+                    is_commission: response.is_commission
+                });
+                
+                // Redirect based on user type
+                if (response.is_commission) {
+                    window.location.href = '/commission.html';
+                } else {
+                    window.location.reload();
+                }
+                
+            } catch (error) {
+                showError('passwordError', error.message || 'Błąd logowania');
+            }
+        });
+        
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('loginModal').addEventListener('click', (e) => {
+            if (e.target.id === 'loginModal') {
+                closeLoginModal();
+            }
+        });
+    </script>
+</body>
+</html>
