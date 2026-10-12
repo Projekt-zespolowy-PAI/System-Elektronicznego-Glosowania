@@ -227,7 +227,10 @@ Szczegółowy schemat: [`sql/01-create-tables.sql`](sql/01-create-tables.sql)
 ## 🤝 Autorzy
 
 Projekt zespołowy PAI — Politechnika (2025)
-
+Jakub Ujma
+Rafał Pawłowski
+Jakub Mazela
+Kamil Pułka
 ## 📄 Licencja
 
 MIT License
